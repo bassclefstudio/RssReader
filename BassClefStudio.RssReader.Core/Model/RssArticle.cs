@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ServiceModel.Syndication;
 using System.Text;
 
-namespace BassClefStudio.RssReader.Core
+namespace BassClefStudio.RssReader.Model
 {
     /// <summary>
     /// Represents a <see cref="SyndicationItem"/> collected from a specific <see cref="RssSubscription"/>.

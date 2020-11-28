@@ -1,5 +1,6 @@
 ﻿using BassClefStudio.AppModel.Navigation;
-using BassClefStudio.RssReader.Core;
+using BassClefStudio.RssReader.Model;
+using BassClefStudio.RssReader.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -17,35 +18,35 @@ using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
-namespace BassClefStudio.RssReader.Uwp
+namespace BassClefStudio.RssReader.Uwp.Views
 {
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class NavPage : Page, IView<NavViewModel>
+    public sealed partial class SettingsDialog : ContentDialog, IView<SettingsViewModel>
     {
-        /// <inheritdoc/>
-        public NavViewModel ViewModel { get; set; }
+        public SettingsViewModel ViewModel { get; set; }
 
-        internal INavigationService NavService { get; }
-        public NavPage(INavigationService navService)
+        public SettingsDialog()
         {
-            NavService = navService;
             this.InitializeComponent();
         }
 
-        /// <inheritdoc/>
         public void Initialize()
+        { }
+
+        private void AddItem(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (NavService is UwpNavigationService uwpNavService)
-            {
-                uwpNavService.CurrentFrame = this.NavFrame;
-            }
+            args.Cancel = true;
+            ViewModel.AddItem();
         }
 
-        private void NavigationItemChanged(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewSelectionChangedEventArgs args)
+        private void RemoveItem(object sender, RoutedEventArgs e)
         {
-            ViewModel.Navigate(args.SelectedItem as NavigationItem);
+            if((sender as FrameworkElement)?.DataContext is RssSubscription sub)
+            {
+                ViewModel.RemoveItem(sub);
+            }
         }
     }
 }

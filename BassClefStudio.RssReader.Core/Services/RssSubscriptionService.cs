@@ -2,23 +2,31 @@
 using BassClefStudio.AppModel.Settings;
 using BassClefStudio.AppModel.Threading;
 using BassClefStudio.NET.Core;
+using BassClefStudio.RssReader.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
-namespace BassClefStudio.RssReader.Core
+namespace BassClefStudio.RssReader.Services
 {
     /// <summary>
     /// A service that can manage a collection of <see cref="RssSubscription"/>s and build a feed of <see cref="SyndicationItem"/> 'stories' from them.
     /// </summary>
-    public class RssSubscriptionService
+    public class RssSubscriptionService : Observable
     {
+        private bool loading;
+        /// <summary>
+        /// A <see cref="bool"/> indicating whether this <see cref="RssSubscriptionService"/> is loading content.
+        /// </summary>
+        public bool Loading { get => loading; set => Set(ref loading, value); }
+
         /// <summary>
         /// A collection of <see cref="RssSubscription"/>s telling the <see cref="RssSubscriptionService"/> where to find feed info.
         /// </summary>
@@ -81,7 +89,9 @@ namespace BassClefStudio.RssReader.Core
 
         private async Task UpdateSubscriptionsAsync()
         {
+            await DispatcherService.RunOnUIThreadAsync(() => Loading = true);
             await SettingsService.SetValue("Subscriptions", Subscriptions.ToArray());
+            await DispatcherService.RunOnUIThreadAsync(() => Loading = false);
         }
 
         /// <summary>
@@ -92,9 +102,10 @@ namespace BassClefStudio.RssReader.Core
             if (!Initialized)
             {
                 Initialized = true;
+                await DispatcherService.RunOnUIThreadAsync(() => Loading = true);
                 if (await SettingsService.ContainsKey("Subscriptions"))
                 {
-                    var subs = await SettingsService.GetValue<RssSubscription[]>("Subscriptions");
+                    var subs = await SettingsService.GetValue<IEnumerable<RssSubscription>>("Subscriptions");
                     await DispatcherService.RunOnUIThreadAsync(() =>
                     {
                         Subscriptions.Clear();
@@ -112,30 +123,43 @@ namespace BassClefStudio.RssReader.Core
         {
             await DispatcherService.RunOnUIThreadAsync(() =>
             {
+                Loading = true;
                 Feed.Clear();
             });
             List<Task> tasks = new List<Task>();
             foreach (var sub in Subscriptions.ToArray())
             {
-                tasks.Add(DispatcherService.RunOnUIThreadAsync(() => AddFeedInfo(sub)));
+                tasks.Add(AddFeedInfoAsync(sub));
             }
 
             foreach (var t in tasks)
             {
                 await t;
             }
+            await DispatcherService.RunOnUIThreadAsync(() => Loading = false);
         }
 
-        private void AddFeedInfo(RssSubscription subscription)
+        private async Task AddFeedInfoAsync(RssSubscription subscription)
         {
-            Rss20FeedFormatter rssFormatter;
-            using (var xmlReader = XmlReader.Create(subscription.Url))
+            if (!string.IsNullOrWhiteSpace(subscription?.Url))
             {
-                rssFormatter = new Rss20FeedFormatter();
-                rssFormatter.ReadFrom(xmlReader);
-            }
+                try
+                {
+                    Rss20FeedFormatter rssFormatter;
+                    using (var xmlReader = XmlReader.Create(subscription.Url))
+                    {
+                        rssFormatter = new Rss20FeedFormatter();
+                        rssFormatter.ReadFrom(xmlReader);
+                    }
 
-            Feed.AddRange(rssFormatter.Feed.Items.Select(i => new RssArticle(subscription, i)));
+                    var items = rssFormatter.Feed.Items.Select(i => new RssArticle(subscription, i)).ToArray();
+                    await DispatcherService.RunOnUIThreadAsync(() => Feed.AddRange(items));
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Loading feed for {subscription.Name} failed: {ex}");
+                }
+            }
         }
     }
 }

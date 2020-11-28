@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BassClefStudio.RssReader.Core
+namespace BassClefStudio.RssReader.Model
 {
     /// <summary>
     /// Represents a user-defined subscription to an RSS or Atom feed source.

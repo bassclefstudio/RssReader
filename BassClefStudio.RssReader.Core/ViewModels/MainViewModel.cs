@@ -3,6 +3,8 @@ using BassClefStudio.AppModel.Navigation;
 using BassClefStudio.AppModel.Settings;
 using BassClefStudio.AppModel.Threading;
 using BassClefStudio.NET.Core;
+using BassClefStudio.RssReader.Model;
+using BassClefStudio.RssReader.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,7 +14,7 @@ using System.ServiceModel.Syndication;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BassClefStudio.RssReader.Core
+namespace BassClefStudio.RssReader.ViewModels
 {
     public class MainViewModel : Observable, IViewModel, IActivationHandler
     {
@@ -21,9 +23,11 @@ namespace BassClefStudio.RssReader.Core
 
         public ObservableCollection<RssArticle> Feed { get; }
 
-        internal RssSubscriptionService RssService { get; }
-        public MainViewModel(RssSubscriptionService rssService)
+        public RssSubscriptionService RssService { get; }
+        internal App App { get; }
+        public MainViewModel(App app, RssSubscriptionService rssService)
         {
+            App = app;
             RssService = rssService;
             Feed = RssService.Feed;
         }
@@ -43,5 +47,15 @@ namespace BassClefStudio.RssReader.Core
         /// <inheritdoc/>
         public void Activate(IActivatedEventArgs args)
         { }
+
+        public async Task RefreshAsync()
+        {
+            await RssService.BuildFeedAsync();
+        }
+
+        public void OpenSettings()
+        {
+            App.Navigate<SettingsViewModel>();
+        }
     }
 }
