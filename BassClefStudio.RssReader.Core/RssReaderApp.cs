@@ -1,10 +1,11 @@
 ﻿using Autofac;
 using BassClefStudio.AppModel.Lifecycle;
+using BassClefStudio.RssReader.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace BassClefStudio.RssReader.Core
+namespace BassClefStudio.RssReader
 {
     public class RssReaderApp : App
     {

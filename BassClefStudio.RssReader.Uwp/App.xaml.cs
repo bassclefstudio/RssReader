@@ -1,5 +1,4 @@
 ﻿using BassClefStudio.AppModel.Lifecycle;
-using BassClefStudio.RssReader.Core;
 
 namespace BassClefStudio.RssReader.Uwp
 {

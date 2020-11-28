@@ -1,0 +1,76 @@
+﻿<ContentDialog
+    x:Class="BassClefStudio.RssReader.Uwp.Views.SettingsDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:model="using:BassClefStudio.RssReader.Model" xmlns:winui="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    Title="Settings"
+    CloseButtonText="Close"
+    DefaultButton="Close"
+    PrimaryButtonText="Add Feed"
+    PrimaryButtonClick="AddItem"
+    CornerRadius="4"
+    Background="{ThemeResource SystemChromeMediumLowColor}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ItemsControl
+            Grid.Row="0"
+            ItemsSource="{x:Bind ViewModel.Subscriptions, Mode=OneWay}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="model:RssSubscription">
+                    <Grid 
+                        Padding="4"
+                        ColumnSpacing="8"
+                        RowSpacing="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Style="{StaticResource BaseTextBlockStyle}"
+                            Text="Name:"/>
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Style="{StaticResource BaseTextBlockStyle}"
+                            Text="URL:"/>
+                        <TextBox 
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            PlaceholderText="My RSS Feed"
+                            Text="{x:Bind Name, Mode=TwoWay}"/>
+                        <TextBox 
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            PlaceholderText="https://myfeed.rss.xml"
+                            Text="{x:Bind Url, Mode=TwoWay}"/>
+                        <Button
+                            Grid.RowSpan="4"
+                            Grid.Column="1"
+                            VerticalAlignment="Stretch"
+                            Click="RemoveItem">
+                            <SymbolIcon Symbol="Delete"/>
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <winui:ProgressBar
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            IsIndeterminate="True"
+            Visibility="{x:Bind ViewModel.RssService.Loading, Mode=OneWay}"/>
+    </Grid>
+</ContentDialog>

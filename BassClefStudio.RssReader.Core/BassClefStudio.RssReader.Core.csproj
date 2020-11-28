@@ -2,10 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>BassClefStudio.RssReader</RootNamespace>
+    <AssemblyName>BassClefStudio.RssReader</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BassClefStudio.AppModel" Version="1.0.5-beta" />
+    <PackageReference Include="BassClefStudio.AppModel" Version="1.0.6-beta" />
     <PackageReference Include="BassClefStudio.NET.Core" Version="1.4.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
   </ItemGroup>

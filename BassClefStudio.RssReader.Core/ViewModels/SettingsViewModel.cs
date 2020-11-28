@@ -1,17 +1,19 @@
 ﻿using BassClefStudio.AppModel.Navigation;
+using BassClefStudio.RssReader.Model;
+using BassClefStudio.RssReader.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BassClefStudio.RssReader.Core
+namespace BassClefStudio.RssReader.ViewModels
 {
     public class SettingsViewModel : IViewModel
     {
         public ObservableCollection<RssSubscription> Subscriptions { get; }
 
-        internal RssSubscriptionService RssService { get; }
+        public RssSubscriptionService RssService { get; }
         public SettingsViewModel(RssSubscriptionService rssService)
         {
             RssService = rssService;
@@ -27,6 +29,11 @@ namespace BassClefStudio.RssReader.Core
         public void AddItem()
         {
             Subscriptions.Add(new RssSubscription());
+        }
+
+        public void RemoveItem(RssSubscription subscription)
+        {
+            Subscriptions.Remove(subscription);
         }
     }
 }
