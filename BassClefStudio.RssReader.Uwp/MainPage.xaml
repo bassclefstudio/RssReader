@@ -1,0 +1,85 @@
+﻿<Page
+    x:Class="BassClefStudio.RssReader.Uwp.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:BassClefStudio.RssReader.Uwp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:core="using:BassClefStudio.RssReader.Core" 
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:helpers="using:BassClefStudio.RssReader.Uwp.Helpers"
+    mc:Ignorable="d"
+    Background="{ThemeResource SystemChromeMediumColor}">
+    <Grid>
+        <controls:MasterDetailsView
+            ItemsSource="{x:Bind ViewModel.Feed, Mode=OneWay}"
+            Background="{x:Null}">
+            <controls:MasterDetailsView.MasterCommandBar>
+                <CommandBar
+                    DefaultLabelPosition="Right">
+                    <CommandBar.PrimaryCommands>
+                        <AppBarButton Icon="Refresh" Label="Refresh"/>
+                        <AppBarButton Icon="Setting" Label="Settings"/>
+                    </CommandBar.PrimaryCommands>
+                </CommandBar>
+            </controls:MasterDetailsView.MasterCommandBar>
+            <controls:MasterDetailsView.NoSelectionContentTemplate>
+                <DataTemplate>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        FontSize="{StaticResource TextStyleLargeFontSize}"
+                        FontWeight="SemiLight"
+                        Text="Select an article to start reading."
+                        TextWrapping="WrapWholeWords"/>
+                </DataTemplate>
+            </controls:MasterDetailsView.NoSelectionContentTemplate>
+            <controls:MasterDetailsView.ItemTemplate>
+                <DataTemplate x:DataType="core:RssArticle">
+                    <Grid
+                        Padding="8"
+                        RowSpacing="4">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            Style="{StaticResource BaseTextBlockStyle}"
+                            Text="{x:Bind Content.Title.Text}"/>
+                        <TextBlock 
+                            Grid.Row="1"
+                            Style="{StaticResource CaptionTextBlockStyle}"
+                            Text="{x:Bind Subscription.Name}"/>
+                    </Grid>
+                </DataTemplate>
+            </controls:MasterDetailsView.ItemTemplate>
+            <controls:MasterDetailsView.DetailsTemplate>
+                <DataTemplate x:DataType="core:RssArticle">
+                    <Grid 
+                        RowSpacing="4" 
+                        HorizontalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <TextBlock 
+                            Grid.Row="0"
+                            Margin="8,0"
+                            Style="{StaticResource SubtitleTextBlockStyle}"
+                            Text="{x:Bind Content.Title.Text}"/>
+                        <ScrollViewer
+                            Grid.Row="1">
+                            <WebView
+                                ScrollViewer.VerticalScrollMode="Disabled"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                DefaultBackgroundColor="Transparent"
+                                helpers:WebViewExtention.HtmlSource="{x:Bind Content.Summary.Text}"/>
+                        </ScrollViewer>
+                    </Grid>
+                </DataTemplate>
+            </controls:MasterDetailsView.DetailsTemplate>
+        </controls:MasterDetailsView>
+    </Grid>
+</Page>
