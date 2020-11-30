@@ -16,10 +16,12 @@ namespace BassClefStudio.RssReader.Uwp.Helpers
         public static void SetHtmlSource(DependencyObject obj, string value) { obj.SetValue(HtmlSourceProperty, value); }
         private static void OnHtmlSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            WebView webView = d as WebView;
-            if (webView != null && e.NewValue is string content)
+            if (d is WebView webView)
             {
-                webView.NavigateToString(content);
+                if (e.NewValue is string content)
+                {
+                    webView.NavigateToString(content);
+                }
             }
         }
     }

@@ -23,9 +23,9 @@ namespace BassClefStudio.RssReader.ViewModels
 
         public ObservableCollection<RssArticle> Feed { get; }
 
-        public RssSubscriptionService RssService { get; }
+        public IRssService RssService { get; }
         internal App App { get; }
-        public MainViewModel(App app, RssSubscriptionService rssService)
+        public MainViewModel(App app, IRssService rssService)
         {
             App = app;
             RssService = rssService;
@@ -35,7 +35,8 @@ namespace BassClefStudio.RssReader.ViewModels
         /// <inheritdoc/>
         public async Task InitializeAsync()
         {
-            await RssService.InitializeAsync();
+            await RssService.GetSubscriptionsAsync();
+            await RssService.GetFeedAsync();
         }
 
         /// <inheritdoc/>
@@ -50,7 +51,7 @@ namespace BassClefStudio.RssReader.ViewModels
 
         public async Task RefreshAsync()
         {
-            await RssService.BuildFeedAsync();
+            await RssService.SyncFeedAsync();
         }
 
         public void OpenSettings()

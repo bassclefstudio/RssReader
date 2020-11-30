@@ -1,23 +1,15 @@
 ﻿using BassClefStudio.AppModel.Navigation;
 using BassClefStudio.AppModel.Threading;
 using BassClefStudio.NET.Core;
+using BassClefStudio.RssReader.Model;
 using BassClefStudio.RssReader.ViewModels;
+using Microsoft.Toolkit.Uwp.UI;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -30,15 +22,21 @@ namespace BassClefStudio.RssReader.Uwp.Views
     {
         public MainViewModel ViewModel { get; set; }
 
+        public AdvancedCollectionView FeedView { get; }
+
         public IDispatcherService DispatcherService { get; set; }
         public MainPage(IDispatcherService dispatcherService)
         {
+            FeedView = new AdvancedCollectionView();
             DispatcherService = dispatcherService;
             this.InitializeComponent();
         }
 
         public void Initialize()
-        { }
+        {
+            FeedView.SortDescriptions.Add(new SortDescription("PostedDate", SortDirection.Descending));
+            FeedView.Source = ViewModel.Feed;
+        }
 
         private void RefreshClick(object sender, RoutedEventArgs e)
         {
@@ -65,6 +63,14 @@ namespace BassClefStudio.RssReader.Uwp.Views
         {
             await webView.InvokeScriptAsync("eval", SetStyleString());
             Debug.WriteLine("Loaded");
+        }
+
+        private void FeedSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if ((sender as MasterDetailsView).SelectedItem is RssArticle article)
+            {
+                article.Read = true;
+            }
         }
     }
 }

@@ -6,9 +6,19 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:helpers="using:BassClefStudio.RssReader.Uwp.Helpers" xmlns:model="using:BassClefStudio.RssReader.Model" xmlns:winui="using:Microsoft.UI.Xaml.Controls" xmlns:syndication="using:System.ServiceModel.Syndication"
+    xmlns:helpers="using:BassClefStudio.RssReader.Uwp.Helpers" 
+    xmlns:model="using:BassClefStudio.RssReader.Model" 
+    xmlns:winui="using:Microsoft.UI.Xaml.Controls" 
+    xmlns:converters="using:BassClefStudio.UWP.Core.Converters" 
+    xmlns:system="using:System"
     mc:Ignorable="d"
     Background="{ThemeResource SystemChromeMediumColor}">
+    <Page.Resources>
+        <converters:VisibilityConverter x:Key="NullConverter" CheckFor="{x:Null}" IsEqual="False"/>
+        <x:Boolean x:Key="True">TRUE</x:Boolean>
+        <converters:VisibilityConverter x:Key="BoolConverter" CheckFor="{StaticResource True}" IsEqual="True"/>
+        <converters:VisibilityConverter x:Key="InverseBoolConverter" CheckFor="{StaticResource True}" IsEqual="False"/>
+    </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -21,9 +31,10 @@
             Visibility="{x:Bind ViewModel.RssService.Loading, Mode=OneWay}"/>
         <controls:MasterDetailsView
             Grid.Row="1"
-            ItemsSource="{x:Bind ViewModel.Feed, Mode=OneWay}"
+            ItemsSource="{x:Bind FeedView, Mode=OneWay}"
             Background="{x:Null}"
-            BackButtonBehavior="Inline">
+            BackButtonBehavior="Inline"
+            SelectionChanged="FeedSelectionChanged">
             <controls:MasterDetailsView.MasterCommandBar>
                 <CommandBar
                     DefaultLabelPosition="Right">
@@ -54,17 +65,33 @@
                 <DataTemplate x:DataType="model:RssArticle">
                     <Grid
                         Padding="8"
-                        RowSpacing="4">
+                        RowSpacing="4"
+                        ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
+                        <Rectangle
+                            Fill="{ThemeResource SystemAccentColor}"
+                            Grid.RowSpan="2"
+                            Grid.Column="0"
+                            Visibility="{x:Bind Read, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                            Width="2"
+                            RadiusX="1"
+                            RadiusY="1"
+                            Margin="0,2"/>
                         <TextBlock
                             Grid.Row="0"
+                            Grid.Column="1"
                             Style="{StaticResource BaseTextBlockStyle}"
-                            Text="{x:Bind Content.Title.Text}"/>
+                            Text="{x:Bind Title}"/>
                         <TextBlock 
                             Grid.Row="1"
+                            Grid.Column="1"
                             Style="{StaticResource CaptionTextBlockStyle}"
                             Text="{x:Bind Subscription.Name}"/>
                     </Grid>
@@ -85,7 +112,7 @@
                             Grid.Row="0"
                             Margin="8,0"
                             Style="{StaticResource TitleTextBlockStyle}"
-                            Text="{x:Bind Content.Title.Text}"/>
+                            Text="{x:Bind Title}"/>
                         <Grid
                             Grid.Row="1"
                             Margin="8,0"
@@ -106,7 +133,7 @@
                                 Grid.Column="0"
                                 VerticalAlignment="Center" 
                                 Style="{StaticResource BaseTextBlockStyle}"
-                                Text="{x:Bind Content.PublishDate}"/>
+                                Text="{x:Bind PostedDate}"/>
                             <TextBlock 
                                 Grid.Row="0"
                                 Grid.Column="1"
@@ -116,12 +143,12 @@
                             <ItemsControl
                                 Grid.Row="1"
                                 Grid.ColumnSpan="4"
-                                ItemsSource="{x:Bind Content.Links}">
+                                ItemsSource="{x:Bind Links}">
                                 <ItemsControl.ItemTemplate>
-                                    <DataTemplate x:DataType="syndication:SyndicationLink">
+                                    <DataTemplate x:DataType="system:String">
                                         <HyperlinkButton
                                             VerticalAlignment="Center" 
-                                            NavigateUri="{x:Bind Uri}">
+                                            NavigateUri="{x:Bind}">
                                             <StackPanel 
                                                 Spacing="4"
                                                 Orientation="Horizontal">
@@ -130,7 +157,7 @@
                                                     Symbol="Link"/>
                                                 <TextBlock 
                                                     VerticalAlignment="Center" 
-                                                    Text="{x:Bind Uri}"/>
+                                                    Text="{x:Bind}"/>
                                             </StackPanel>
                                         </HyperlinkButton>
                                     </DataTemplate>
@@ -149,7 +176,8 @@
                             VerticalAlignment="Stretch"
                             DefaultBackgroundColor="Transparent"
                             NavigationCompleted="WebView_NavigationCompleted"
-                            helpers:WebViewExtention.HtmlSource="{x:Bind Content.Summary.Text}"/>
+                            Visibility="{x:Bind Body, Converter={StaticResource NullConverter}}"
+                            helpers:WebViewExtention.HtmlSource="{x:Bind Body}"/>
                     </Grid>
                 </DataTemplate>
             </controls:MasterDetailsView.DetailsTemplate>

@@ -13,8 +13,8 @@ namespace BassClefStudio.RssReader.ViewModels
     {
         public ObservableCollection<RssSubscription> Subscriptions { get; }
 
-        public RssSubscriptionService RssService { get; }
-        public SettingsViewModel(RssSubscriptionService rssService)
+        public IRssService RssService { get; }
+        public SettingsViewModel(IRssService rssService)
         {
             RssService = rssService;
             Subscriptions = RssService.Subscriptions;
@@ -23,7 +23,8 @@ namespace BassClefStudio.RssReader.ViewModels
         /// <inheritdoc/>
         public async Task InitializeAsync()
         {
-            await RssService.InitializeAsync();
+            await RssService.GetSubscriptionsAsync();
+            await RssService.GetFeedAsync();
         }
 
         public void AddItem()
