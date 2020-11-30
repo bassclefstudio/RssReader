@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using BassClefStudio.AppModel.Background;
 using BassClefStudio.AppModel.Lifecycle;
 using BassClefStudio.RssReader.Services;
 using System;
@@ -13,9 +14,14 @@ namespace BassClefStudio.RssReader
         protected override void ConfigureServices(ContainerBuilder builder)
         {
             builder.RegisterViewModels(typeof(RssReaderApp).Assembly);
-            builder.RegisterType<RssSubscriptionService>()
-                .SingleInstance()
-                .AsSelf();
+            builder.RegisterAssemblyTypes(typeof(RssReaderApp).Assembly)
+                .AssignableTo<IBackgroundTask>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
+            builder.RegisterAssemblyTypes(typeof(RssReaderApp).Assembly)
+                .AssignableTo<IRssService>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
         }
     }
 }
