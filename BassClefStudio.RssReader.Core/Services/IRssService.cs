@@ -185,24 +185,21 @@ namespace BassClefStudio.RssReader.Services
         {
             await DispatcherService.RunOnUIThreadAsync(() => Loading = true);
             var feedFile = await StorageService.AppDataFolder.CreateFileAsync("Feed.json", CollisionOptions.OpenExisting);
-            using(var fileContent = await feedFile.OpenFileAsync(FileOpenMode.ReadWrite))
+            string json = await feedFile.ReadTextAsync();
+            var articles = JsonConvert.DeserializeObject<RssArticle[]>(json);
+            await DispatcherService.RunOnUIThreadAsync(() =>
             {
-                string json = await fileContent.ReadTextAsync();
-                var articles = JsonConvert.DeserializeObject<RssArticle[]>(json);
-                await DispatcherService.RunOnUIThreadAsync(() =>
+                Feed.Clear();
+                if (articles != null)
                 {
-                    Feed.Clear();
-                    if (articles != null)
+                    foreach (var a in articles)
                     {
-                        foreach (var a in articles)
-                        {
-                            a.Subscription = Subscriptions.FirstOrDefault(s => s.Name == a.SubscriptionName);
-                            Feed.Add(a);
-                        }
+                        a.Subscription = Subscriptions.FirstOrDefault(s => s.Name == a.SubscriptionName);
+                        Feed.Add(a);
                     }
-                    Loading = false;
-                });
-            }
+                }
+                Loading = false;
+            });
         }
 
         /// <inheritdoc/>
@@ -210,10 +207,7 @@ namespace BassClefStudio.RssReader.Services
         {
             await DispatcherService.RunOnUIThreadAsync(() => Loading = true);
             var feedFile = await StorageService.AppDataFolder.CreateFileAsync("Feed.json", CollisionOptions.OpenExisting);
-            using (var fileContent = await feedFile.OpenFileAsync(FileOpenMode.ReadWrite))
-            {
-                await fileContent.WriteTextAsync(JsonConvert.SerializeObject(Feed.ToArray()));
-            }
+            await feedFile.WriteTextAsync(JsonConvert.SerializeObject(Feed.ToArray()));
             await DispatcherService.RunOnUIThreadAsync(() => Loading = false);
         }
 
