@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows10.0.18362.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="BassClefStudio.AppModel.Base" Version="1.2.3" />
+    <PackageReference Include="BassClefStudio.AppModel.Wpf" Version="1.2.5" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.664.37" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BassClefStudio.RssReader.Core\BassClefStudio.RssReader.Core.csproj" />
+  </ItemGroup>
+</Project>

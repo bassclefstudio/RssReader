@@ -1,0 +1,73 @@
+﻿<Window x:Class="BassClefStudio.RssReader.Wpf.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BassClefStudio.RssReader.Wpf.Views" 
+        xmlns:helpers="clr-namespace:BassClefStudio.RssReader.Wpf.Helpers"
+        mc:Ignorable="d"
+        Title="Settings" Height="400" Width="400">
+    <Window.Resources>
+        <helpers:VisibilityConverter x:Key="BoolConverter" CheckFor="True" IsEqual="True"/>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ItemsControl
+            Grid.Row="0"
+            ItemsSource="{Binding RssService.Subscriptions, Mode=OneWay}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Name:"/>
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            Text="URL:"/>
+                        <TextBox 
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Text="{Binding Name, Mode=TwoWay}"/>
+                        <TextBox 
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            Text="{Binding Url, Mode=TwoWay}"/>
+                        <Button
+                            Grid.RowSpan="4"
+                            Grid.Column="1"
+                            VerticalAlignment="Stretch"
+                            Click="RemoveItem"
+                            Content="X">
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <Button
+            Grid.Row="1"
+            Click="AddItem"
+            Content="Add Feed">
+        </Button>
+        <ProgressBar
+            Grid.Row="2"
+            HorizontalAlignment="Stretch"
+            IsIndeterminate="True"
+            Visibility="{Binding RssService.Loading, Mode=OneWay, Converter={StaticResource BoolConverter}}"/>
+    </Grid>
+</Window>

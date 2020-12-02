@@ -10,6 +10,9 @@ namespace BassClefStudio.RssReader
 {
     public class RssReaderApp : App
     {
+        public RssReaderApp() : base("BassClefStudio.Rss")
+        { }
+
         /// <inheritdoc/>
         protected override void ConfigureServices(ContainerBuilder builder)
         {
