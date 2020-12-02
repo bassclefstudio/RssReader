@@ -1,0 +1,149 @@
+﻿<Page 
+    x:Class="BassClefStudio.RssReader.Wpf.Views.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:BassClefStudio.RssReader.Wpf.Views" 
+    xmlns:helpers="clr-namespace:BassClefStudio.RssReader.Wpf.Helpers" xmlns:web="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+    mc:Ignorable="d" 
+    d:DesignHeight="450" d:DesignWidth="800"
+    Background="#444444"
+    Title="MainPage">
+    <Page.Resources>
+        <helpers:VisibilityConverter x:Key="NullConverter" CheckFor="{x:Null}" IsEqual="False"/>
+        <helpers:VisibilityConverter x:Key="BoolConverter" CheckFor="True" IsEqual="True"/>
+        <helpers:VisibilityConverter x:Key="InverseBoolConverter" CheckFor="True" IsEqual="False"/>
+    </Page.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ProgressBar
+            Grid.Row="0"
+            Height="4"
+            HorizontalAlignment="Stretch"
+            IsIndeterminate="True"
+            Visibility="{Binding RssService.Loading, Mode=OneWay, Converter={StaticResource BoolConverter}}"/>
+        <Grid
+            Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+            </Grid.ColumnDefinitions>
+            <ListView 
+                x:Name="feedView"
+                Grid.Column="0"
+                Background="{x:Null}"
+                ItemsSource="{Binding RssService.Feed, Mode=OneWay}"
+                SelectionMode="Single">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <Rectangle
+                                Fill="DeepSkyBlue"
+                                Grid.RowSpan="2"
+                                Grid.Column="0"
+                                Visibility="{Binding Read, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                Width="2"
+                                RadiusX="1"
+                                RadiusY="1"
+                                Margin="0,2"/>
+                            <TextBlock
+                                Grid.Row="0"
+                                Grid.Column="1"
+                                FontSize="16"
+                                Foreground="White"
+                                Text="{Binding Title}"/>
+                            <TextBlock 
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                FontSize="10"
+                                Foreground="White"
+                                Text="{Binding Subscription.Name}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <ContentControl 
+                Grid.Column="1"
+                Content="{Binding SelectedItem, ElementName=feedView}">
+                <ContentControl.ContentTemplate>
+                    <DataTemplate>
+                        <Grid 
+                        HorizontalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBlock 
+                                Grid.Row="0"
+                                Margin="8,0"
+                                FontSize="20"
+                                Foreground="White"
+                                Text="{Binding Title}"/>
+                            <Grid
+                                Grid.Row="1"
+                                Margin="8,0"
+                                HorizontalAlignment="Stretch">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <TextBlock 
+                                    Grid.Row="0"
+                                    VerticalAlignment="Center" 
+                                    Foreground="White"
+                                    Text="{Binding PostedDate}"/>
+                                <ItemsControl
+                                    Grid.Row="1"
+                                    ItemsSource="{Binding Links}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock 
+                                                VerticalAlignment="Center" 
+                                                Foreground="White"
+                                                Text="{Binding}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                            <Rectangle
+                            Grid.Row="2"
+                            Height="1"
+                            HorizontalAlignment="Stretch"
+                            Margin="8,0"
+                            Fill="White"/>
+                            <web:WebView2
+                                Grid.Row="3"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                NavigationCompleted="WebView2_NavigationCompleted"
+                                Visibility="{Binding Body, Converter={StaticResource NullConverter}}"
+                                helpers:WebViewExtention.HtmlSource="{Binding Body}"
+                                Source="about:blank"/>
+                        </Grid>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
+        </Grid>
+        <StackPanel
+            Orientation="Horizontal"
+            Grid.Row="2">
+            <Button Content="Refresh" Click="Refresh_Click"/>
+            <Button Content="Settings" Click="Settings_Click"/>
+        </StackPanel>
+    </Grid>
+</Page>
