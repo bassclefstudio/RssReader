@@ -203,10 +203,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BassClefStudio.AppModel">
-      <Version>1.2.0</Version>
+      <Version>1.2.1</Version>
     </PackageReference>
     <PackageReference Include="BassClefStudio.AppModel.Uwp">
-      <Version>1.2.0</Version>
+      <Version>1.2.1</Version>
     </PackageReference>
     <PackageReference Include="BassClefStudio.UWP.Core">
       <Version>2.0.1</Version>
