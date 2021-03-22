@@ -21,22 +21,18 @@ namespace BassClefStudio.RssReader.ViewModels
         /// <inheritdoc/>
         public bool Enabled { get; } = true;
 
-        public ObservableCollection<RssArticle> Feed { get; }
-
         public IRssService RssService { get; }
         internal App App { get; }
         public MainViewModel(App app, IRssService rssService)
         {
             App = app;
             RssService = rssService;
-            Feed = RssService.Feed;
         }
 
         /// <inheritdoc/>
         public async Task InitializeAsync()
         {
-            await RssService.GetSubscriptionsAsync();
-            await RssService.GetFeedAsync();
+            await RssService.InitializeAsync();
         }
 
         /// <inheritdoc/>

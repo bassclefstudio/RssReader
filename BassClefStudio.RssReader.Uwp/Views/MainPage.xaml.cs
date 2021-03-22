@@ -35,7 +35,7 @@ namespace BassClefStudio.RssReader.Uwp.Views
         public void Initialize()
         {
             FeedView.SortDescriptions.Add(new SortDescription("PostedDate", SortDirection.Descending));
-            FeedView.Source = ViewModel.Feed;
+            FeedView.Source = ViewModel.RssService.Feed;
         }
 
         private void RefreshClick(object sender, RoutedEventArgs e)
@@ -67,7 +67,7 @@ namespace BassClefStudio.RssReader.Uwp.Views
 
         private void FeedSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if ((sender as MasterDetailsView).SelectedItem is RssArticle article)
+            if ((sender as ListDetailsView).SelectedItem is RssArticle article)
             {
                 article.Read = true;
             }

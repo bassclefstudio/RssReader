@@ -37,8 +37,7 @@ namespace BassClefStudio.RssReader.Background
         /// <inheritdoc/>
         public async Task RunAsync()
         {
-            await RssService.GetSubscriptionsAsync();
-            await RssService.GetFeedAsync();
+            await RssService.InitializeAsync();
             await RssService.SyncFeedAsync();
             var unread = RssService.Feed.Where(f => !f.Read).ToArray();
             foreach (var item in unread)

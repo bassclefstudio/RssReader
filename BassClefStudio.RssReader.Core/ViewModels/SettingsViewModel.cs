@@ -23,8 +23,7 @@ namespace BassClefStudio.RssReader.ViewModels
         /// <inheritdoc/>
         public async Task InitializeAsync()
         {
-            await RssService.GetSubscriptionsAsync();
-            await RssService.GetFeedAsync();
+            await RssService.InitializeAsync();
         }
 
         public void AddItem()

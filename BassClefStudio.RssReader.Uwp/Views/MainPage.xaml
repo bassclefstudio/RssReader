@@ -29,13 +29,13 @@
             HorizontalAlignment="Stretch"
             IsIndeterminate="True"
             Visibility="{x:Bind ViewModel.RssService.Loading, Mode=OneWay}"/>
-        <controls:MasterDetailsView
+        <controls:ListDetailsView
             Grid.Row="1"
             ItemsSource="{x:Bind FeedView, Mode=OneWay}"
             Background="{x:Null}"
             BackButtonBehavior="Inline"
             SelectionChanged="FeedSelectionChanged">
-            <controls:MasterDetailsView.MasterCommandBar>
+            <controls:ListDetailsView.ListCommandBar>
                 <CommandBar
                     DefaultLabelPosition="Right">
                     <CommandBar.PrimaryCommands>
@@ -49,8 +49,8 @@
                             Click="SettingsClick"/>
                     </CommandBar.PrimaryCommands>
                 </CommandBar>
-            </controls:MasterDetailsView.MasterCommandBar>
-            <controls:MasterDetailsView.NoSelectionContentTemplate>
+            </controls:ListDetailsView.ListCommandBar>
+            <controls:ListDetailsView.NoSelectionContentTemplate>
                 <DataTemplate>
                     <TextBlock
                         VerticalAlignment="Center"
@@ -60,8 +60,8 @@
                         Text="Select an article to start reading."
                         TextWrapping="WrapWholeWords"/>
                 </DataTemplate>
-            </controls:MasterDetailsView.NoSelectionContentTemplate>
-            <controls:MasterDetailsView.ItemTemplate>
+            </controls:ListDetailsView.NoSelectionContentTemplate>
+            <controls:ListDetailsView.ItemTemplate>
                 <DataTemplate x:DataType="model:RssArticle">
                     <Grid
                         Padding="8"
@@ -96,8 +96,8 @@
                             Text="{x:Bind Subscription.Name}"/>
                     </Grid>
                 </DataTemplate>
-            </controls:MasterDetailsView.ItemTemplate>
-            <controls:MasterDetailsView.DetailsTemplate>
+            </controls:ListDetailsView.ItemTemplate>
+            <controls:ListDetailsView.DetailsTemplate>
                 <DataTemplate x:DataType="model:RssArticle">
                     <Grid 
                         RowSpacing="4" 
@@ -180,7 +180,7 @@
                             helpers:WebViewExtention.HtmlSource="{x:Bind Body}"/>
                     </Grid>
                 </DataTemplate>
-            </controls:MasterDetailsView.DetailsTemplate>
-        </controls:MasterDetailsView>
+            </controls:ListDetailsView.DetailsTemplate>
+        </controls:ListDetailsView>
     </Grid>
 </Page>

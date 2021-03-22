@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BassClefStudio.AppModel" Version="1.2.3" />
-    <PackageReference Include="BassClefStudio.NET.Core" Version="1.4.0" />
-    <PackageReference Include="BassClefStudio.NET.Sync" Version="1.5.1" />
+    <PackageReference Include="BassClefStudio.AppModel" Version="1.8.2" />
+    <PackageReference Include="BassClefStudio.NET.Core" Version="1.5.4" />
+    <PackageReference Include="BassClefStudio.NET.Sync" Version="1.6.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="5.0.0" />
   </ItemGroup>
 

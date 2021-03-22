@@ -5,8 +5,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BassClefStudio.AppModel.Base" Version="1.2.3" />
-    <PackageReference Include="BassClefStudio.AppModel.Wpf" Version="1.2.5" />
+    <PackageReference Include="BassClefStudio.AppModel.Base" Version="1.8.2" />
+    <PackageReference Include="BassClefStudio.AppModel.Wpf" Version="1.8.2" />
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.664.37" />
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,7 @@
 using BassClefStudio.AppModel.Storage;
 using BassClefStudio.AppModel.Threading;
 using BassClefStudio.NET.Core;
+using BassClefStudio.NET.Sync;
 using BassClefStudio.RssReader.Model;
 using Newtonsoft.Json;
 using System;
@@ -34,34 +35,19 @@ namespace BassClefStudio.RssReader.Services
         ObservableCollection<RssArticle> Feed { get; }
 
         /// <summary>
-        /// A <see cref="bool"/> indicating whether content is being loaded.
+        /// A <see cref="bool"/> indicating an ongoing operation is loading in the background.
         /// </summary>
         bool Loading { get; }
-
-        /// <summary>
-        /// Retrieves the locally cached <see cref="RssSubscription"/>s from local storage.
-        /// </summary>
-        Task GetSubscriptionsAsync();
-
-        /// <summary>
-        /// Retrieves the locally cached <see cref="RssArticle"/>s from local storage.
-        /// </summary>
-        Task GetFeedAsync();
-
-        /// <summary>
-        /// Saves the locally cached <see cref="RssSubscription"/>s to local storage.
-        /// </summary>
-        Task SaveSubscriptionsAsync();
-
-        /// <summary>
-        /// Saves the locally cached <see cref="RssArticle"/>s to local storage.
-        /// </summary>
-        Task SaveFeedAsync();
 
         /// <summary>
         /// Syncs the <see cref="Feed"/> collection with <see cref="RssArticle"/> information collected from the online <see cref="RssSubscription"/> services.
         /// </summary>
         Task SyncFeedAsync();
+
+        /// <summary>
+        /// Initializes the <see cref="Feed"/> and <see cref="Subscriptions"/> asynchronously.
+        /// </summary>
+        Task InitializeAsync();
     }
 
     internal class RssService : Observable, IRssService
@@ -74,21 +60,20 @@ namespace BassClefStudio.RssReader.Services
 
         private bool loading;
         /// <inheritdoc/>
-        public bool Loading { get => loading; private set => Set(ref loading, value); }
+        public bool Loading { get => loading; set => Set(ref loading, value); }
 
-        internal IStorageService StorageService { get; }
-        internal ISettingsService SettingsService { get; }
+        internal ISyncItem<RssSubscription[]> SubLink { get; }
+        internal ISyncItem<RssArticle[]> FeedLink { get; }
         internal IDispatcherService DispatcherService { get; }
         /// <summary>
         /// Creates a new <see cref="RssService"/> from the required dependencies.
         /// </summary>
-        public RssService(IStorageService storageService, ISettingsService settingsService, IDispatcherService dispatcherService)
+        public RssService(ISyncItem<RssSubscription[]> subscriptions, ISyncItem<RssArticle[]> feed, IDispatcherService dispatcherService)
         {
             Subscriptions = new ObservableCollection<RssSubscription>();
             Feed = new ObservableCollection<RssArticle>();
-
-            StorageService = storageService;
-            SettingsService = settingsService;
+            SubLink = subscriptions;
+            FeedLink = feed;
             DispatcherService = dispatcherService;
 
             Subscriptions.CollectionChanged += SubscriptionsChanged;
@@ -115,7 +100,7 @@ namespace BassClefStudio.RssReader.Services
                 }
             }
 
-            SynchronousTask updateTask = new SynchronousTask(SaveSubscriptionsAsync);
+            SynchronousTask updateTask = new SynchronousTask(PushSubsAsync);
             updateTask.RunTask();
         }
 
@@ -138,77 +123,43 @@ namespace BassClefStudio.RssReader.Services
             }
         }
 
-        private void SubscriptionInfoChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void SubscriptionInfoChanged(object sender, PropertyChangedEventArgs e)
         {
-            SynchronousTask updateTask = new SynchronousTask(SaveSubscriptionsAsync);
+            SynchronousTask updateTask = new SynchronousTask(PushSubsAsync);
             updateTask.RunTask();
         }
 
-        private void FeedItemChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void FeedItemChanged(object sender, PropertyChangedEventArgs e)
         {
-            SynchronousTask updateTask = new SynchronousTask(SaveFeedAsync);
+            SynchronousTask updateTask = new SynchronousTask(PushFeedAsync);
             updateTask.RunTask();
         }
 
         #endregion
         #region Interface
-
+        
         /// <inheritdoc/>
-        public async Task GetSubscriptionsAsync()
+        public async Task InitializeAsync()
         {
-            if (await SettingsService.ContainsKey("Subscriptions"))
+            if (!Subscriptions.Any())
             {
-                await DispatcherService.RunOnUIThreadAsync(() => Loading = true);
-                var subs = await SettingsService.GetValue<RssSubscription[]>("Subscriptions");
-                await DispatcherService.RunOnUIThreadAsync(() =>
-                {
-                    Subscriptions.Clear();
-                    if (subs != null)
-                    {
-                        Subscriptions.AddRange(subs);
-                    }
-                    Loading = false;
-                });
+                await SubLink.UpdateAsync();
+                Subscriptions.AddRange(SubLink.Item);
+                await FeedLink.UpdateAsync();
+                Feed.AddRange(FeedLink.Item);
             }
         }
 
-        /// <inheritdoc/>
-        public async Task SaveSubscriptionsAsync()
+        public async Task PushSubsAsync()
         {
-            await DispatcherService.RunOnUIThreadAsync(() => Loading = true);
-            await SettingsService.SetValue("Subscriptions", Subscriptions.ToArray());
-            await DispatcherService.RunOnUIThreadAsync(() => Loading = false);
+            SubLink.Item = Subscriptions.ToArray();
+            await SubLink.PushAsync();
         }
 
-        /// <inheritdoc/>
-        public async Task GetFeedAsync()
+        public async Task PushFeedAsync()
         {
-            await DispatcherService.RunOnUIThreadAsync(() => Loading = true);
-            var feedFile = await StorageService.AppDataFolder.CreateFileAsync("Feed.json", CollisionOptions.OpenExisting);
-            string json = await feedFile.ReadTextAsync();
-            var articles = JsonConvert.DeserializeObject<RssArticle[]>(json);
-            await DispatcherService.RunOnUIThreadAsync(() =>
-            {
-                Feed.Clear();
-                if (articles != null)
-                {
-                    foreach (var a in articles)
-                    {
-                        a.Subscription = Subscriptions.FirstOrDefault(s => s.Name == a.SubscriptionName);
-                        Feed.Add(a);
-                    }
-                }
-                Loading = false;
-            });
-        }
-
-        /// <inheritdoc/>
-        public async Task SaveFeedAsync()
-        {
-            await DispatcherService.RunOnUIThreadAsync(() => Loading = true);
-            var feedFile = await StorageService.AppDataFolder.CreateFileAsync("Feed.json", CollisionOptions.OpenExisting);
-            await feedFile.WriteTextAsync(JsonConvert.SerializeObject(Feed.ToArray()));
-            await DispatcherService.RunOnUIThreadAsync(() => Loading = false);
+            FeedLink.Item = Feed.ToArray();
+            await FeedLink.PushAsync();
         }
 
         /// <inheritdoc/>
@@ -233,7 +184,7 @@ namespace BassClefStudio.RssReader.Services
                 Feed.RemoveRange(Feed.Where(a => !Subscriptions.Contains(a.Subscription)).ToArray());
                 Loading = false;
             });
-            await SaveFeedAsync();
+            await PushFeedAsync();
         }
 
         private static SyndicationFeedFormatter[] Formatters { get; }
